@@ -1,0 +1,11 @@
+name: superfast-delivery-api-infra
+description: A minimal AWS TypeScript Pulumi program
+runtime:
+  name: nodejs
+  options:
+    packagemanager: pnpm
+    nodeargs: "--loader ts-node/esm --no-warnings --experimental-specifier-resolution=node"
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: aws-typescript

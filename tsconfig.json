@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "outDir": "bin",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "pretty": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
+  },
+  "files": [
+    "index.ts"
+  ],
+}

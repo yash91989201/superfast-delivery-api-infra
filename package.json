@@ -1,0 +1,19 @@
+{
+  "name": "superfast-delivery-api-infra",
+  "main": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "@types/node": "^18",
+    "eslint": "^9.20.1",
+    "globals": "^16.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.24.1"
+  },
+  "dependencies": {
+    "@pulumi/aws": "^6.0.0",
+    "@pulumi/awsx": "^2.0.2",
+    "@pulumi/pulumi": "^3.113.0"
+  }
+}

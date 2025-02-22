@@ -1,16 +1,34 @@
+import * as pulumi from "@pulumi/pulumi";
+import * as fs from "fs";
 import * as aws from "@pulumi/aws";
+import * as tls from "@pulumi/tls";
 import {
   bastionHostAMI,
   bastionHostSSHKeyName,
   clusterName,
   k8sNodeAMI,
-  k8sNodeSSHKeyName,
 } from "./constants";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 
 const k8sMasterNodeRolePolicyJSON = require("./k8s-master-node-role-policy.json");
 const k8sWorkerNodeRolePolicyJSON = require("./k8s-worker-node-role-policy.json");
+
+const k8sSSHKey = new tls.PrivateKey("k8s-ssh-key", {
+  algorithm: "ED25519",
+});
+
+// Create an AWS Key Pair
+const k8sSSHKeyPair = new aws.ec2.KeyPair("k8s-ssh-key-pair", {
+  publicKey: k8sSSHKey.publicKeyOpenssh,
+});
+
+const bastionHostScript = fs.readFileSync(
+  "./user-data/bastion-host.sh",
+  "utf-8",
+);
+
+const bastionHostUserData = pulumi.interpolate`${bastionHostScript.replace("{{K8S_SSH_KEY}}", k8sSSHKey.privateKeyPem.get())}`;
 
 const availabilityZones = await aws.getAvailabilityZones({
   state: "available",
@@ -372,6 +390,7 @@ const bastionHost = new aws.ec2.Instance("bastion-host", {
   vpcSecurityGroupIds: [bastionHostSg.id],
   subnetId: publicSubnet01.id,
   keyName: bastionHostSSHKeyName,
+  userData: bastionHostUserData,
   tags: {
     Name: "bastion-host",
   },
@@ -386,7 +405,7 @@ const k8sMasterNode01 = new aws.ec2.Instance("k8s-master-01", {
   instanceType: aws.ec2.InstanceType.T3_Medium,
   vpcSecurityGroupIds: [k8sMasterNodeSg.id],
   subnetId: privateSubnet01.id,
-  keyName: k8sNodeSSHKeyName,
+  keyName: k8sSSHKeyPair.keyName,
   rootBlockDevice: {
     volumeSize: 32,
     volumeType: "gp3",
@@ -406,7 +425,7 @@ const k8sMasterNode02 = new aws.ec2.Instance("k8s-master-02", {
   instanceType: aws.ec2.InstanceType.T3_Medium,
   vpcSecurityGroupIds: [k8sMasterNodeSg.id],
   subnetId: privateSubnet02.id,
-  keyName: k8sNodeSSHKeyName,
+  keyName: k8sSSHKeyPair.keyName,
   rootBlockDevice: {
     volumeSize: 32,
     volumeType: "gp3",

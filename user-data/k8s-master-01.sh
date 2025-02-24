@@ -36,3 +36,4 @@ chmod 700 get_helm.sh
 ./get_helm.sh
 
 git clone https://github.com/yash91989201/superfast-delivery-api-infra /home/ubuntu/superfast-delivery-api-infra
+chown -R ubuntu:ubuntu /home/ubuntu/superfast-delivery-api-infra

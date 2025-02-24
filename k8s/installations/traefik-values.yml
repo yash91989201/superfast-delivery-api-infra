@@ -1,0 +1,39 @@
+# values for traefik helm installation
+# traefik-values.yml
+service:
+  enabled: true
+  type: LoadBalancer
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "ssl"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "<AWS_CERTIFICATE_ARN>"
+
+providers:
+  kubernetesCRD:
+    enabled: true
+    allowCrossNamespace: true
+    allowExternalNameServices: false
+    namespaces: []
+  kubernetesIngress:
+    enabled: true
+    allowExternalNameServices: false
+    allowEmptyServices: false
+    ingressClass: traefik-cert-manager
+    publishedService:
+      enabled: false
+
+deployment:
+  replicas: 2
+
+ports:
+  websecure:
+    tls:
+      enabled: true
+
+persistence:
+  enabled: true
+  name: data
+  storageClass: "gp3"
+  accessMode: ReadWriteOnce
+  size: 128Mi
+  path: /data

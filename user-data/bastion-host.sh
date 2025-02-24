@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
-echo "{{K8S_SSH_KEY}}" >k8s-master-key.pem
+# Write private key with proper formatting
+cat <<EOF >/home/ubuntu/k8s-master-key.pem
+{{K8S_SSH_PRIVATE_KEY}}
+EOF
 
-chmod 600 k8s-master-key.pem
+# Fix permissions and ownership
+chmod 600 /home/ubuntu/k8s-master-key.pem
+chown ubuntu:ubuntu /home/ubuntu/k8s-master-key.pem

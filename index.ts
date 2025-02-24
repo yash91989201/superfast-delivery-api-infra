@@ -1,4 +1,3 @@
-import * as pulumi from "@pulumi/pulumi";
 import * as fs from "fs";
 import * as aws from "@pulumi/aws";
 import * as tls from "@pulumi/tls";
@@ -20,7 +19,12 @@ const k8sSSHKey = new tls.PrivateKey("k8s-ssh-key", {
 
 // Create an AWS Key Pair
 const k8sSSHKeyPair = new aws.ec2.KeyPair("k8s-ssh-key-pair", {
+  keyName: "k8s-ssh-key-pair",
   publicKey: k8sSSHKey.publicKeyOpenssh,
+  tags: {
+    Name: "k8s-ssh-key-pair",
+    Description: "ssh key to connect to all k8s nodes from bastion host",
+  },
 });
 
 const bastionHostScript = fs.readFileSync(
@@ -28,7 +32,15 @@ const bastionHostScript = fs.readFileSync(
   "utf-8",
 );
 
-const bastionHostUserData = pulumi.interpolate`${bastionHostScript.replace("{{K8S_SSH_KEY}}", k8sSSHKey.privateKeyPem.get())}`;
+const k8sNodesUserData = fs.readFileSync("./user-data/k8s-nodes.sh", "utf-8");
+const k8sMasterNode01UserData = fs.readFileSync(
+  "./user-data/k8s-master-01.sh",
+  "utf-8",
+);
+
+const bastionHostUserData = k8sSSHKey.privateKeyOpenssh.apply((privateKey) =>
+  bastionHostScript.replace("{{K8S_SSH_PRIVATE_KEY}}", privateKey),
+);
 
 const availabilityZones = await aws.getAvailabilityZones({
   state: "available",
@@ -43,6 +55,7 @@ const vpc = new aws.ec2.Vpc("superfast-delivery", {
   enableDnsSupport: true,
   tags: {
     Name: "superfast-delivery",
+    [`kubernetes.io/cluster/${clusterName}`]: "shared",
   },
 });
 
@@ -223,6 +236,7 @@ new aws.ec2.DefaultSecurityGroup("default-sg", {
   ],
   tags: {
     Name: "default-sg",
+    [`kubernetes.io/cluster/${clusterName}`]: "shared",
   },
 });
 
@@ -232,6 +246,7 @@ const k8sApiServerLbSg = new aws.ec2.SecurityGroup("k8s-api-server-lb-sg", {
   vpcId: vpc.id,
   tags: {
     Name: "k8s-api-server-lb-sg",
+    [`kubernetes.io/cluster/${clusterName}`]: "shared",
   },
 });
 
@@ -246,6 +261,40 @@ new aws.vpc.SecurityGroupIngressRule(
   },
 );
 
+new aws.vpc.SecurityGroupIngressRule(
+  "k8s-api-server-lb-sg-allow-etcd-inbound",
+  {
+    description: "Allow inbound traffic for etcd",
+    securityGroupId: k8sApiServerLbSg.id,
+    cidrIpv4: "0.0.0.0/0",
+    ipProtocol: "tcp",
+    fromPort: 2379,
+    toPort: 2380,
+  },
+);
+
+new aws.vpc.SecurityGroupIngressRule(
+  "k8s-api-server-lb-sg-allow-kube-inbound",
+  {
+    description:
+      "Allow inbound traffic for kubelet api, kube-controller-manager, kube-scheduler",
+    securityGroupId: k8sApiServerLbSg.id,
+    cidrIpv4: "0.0.0.0/0",
+    ipProtocol: "tcp",
+    fromPort: 10250,
+    toPort: 10259,
+  },
+);
+
+new aws.vpc.SecurityGroupIngressRule("k8s-api-server-lb-sg-allow-bgp-inbound", {
+  description: "Allow inbound traffic for bgp",
+  securityGroupId: k8sApiServerLbSg.id,
+  cidrIpv4: "0.0.0.0/0",
+  ipProtocol: "tcp",
+  fromPort: 179,
+  toPort: 179,
+});
+
 new aws.vpc.SecurityGroupEgressRule("k8s-api-server-lb-sg-allow-all-outbound", {
   securityGroupId: k8sApiServerLbSg.id,
   cidrIpv4: "0.0.0.0/0",
@@ -258,19 +307,20 @@ const bastionHostSg = new aws.ec2.SecurityGroup("bastion-host-sg", {
   vpcId: vpc.id,
   tags: {
     Name: "bastion-host-sg",
+    [`kubernetes.io/cluster/${clusterName}`]: "shared",
   },
 });
 
 new aws.vpc.SecurityGroupIngressRule("bastion-host-sg-allow-ssh-inbound", {
   securityGroupId: bastionHostSg.id,
-  description: "Allow ssh traffic from anywhere to the bastion host",
+  description: "Allow inbound ssh traffic from anywhere to the bastion host",
   cidrIpv4: "0.0.0.0/0",
   ipProtocol: "tcp",
   fromPort: 22,
   toPort: 22,
 });
 
-new aws.vpc.SecurityGroupEgressRule("bastion-host-sg-allo-all-outbound", {
+new aws.vpc.SecurityGroupEgressRule("bastion-host-sg-allow-all-outbound", {
   securityGroupId: bastionHostSg.id,
   description: "Allow all outgoing traffic from bastion host sg",
   cidrIpv4: "0.0.0.0/0",
@@ -310,6 +360,43 @@ new aws.vpc.SecurityGroupIngressRule(
 );
 
 new aws.vpc.SecurityGroupIngressRule(
+  "k8s-master-node-sg-allow-lb-etcd-inbound",
+  {
+    securityGroupId: k8sMasterNodeSg.id,
+    description: "Allow etcd traffic from private load balancer",
+    ipProtocol: "tcp",
+    cidrIpv4: "0.0.0.0/0",
+    fromPort: 2379,
+    toPort: 2380,
+  },
+);
+
+new aws.vpc.SecurityGroupIngressRule(
+  "k8s-master-node-sg-allow-lb-kube-inbound",
+  {
+    securityGroupId: k8sMasterNodeSg.id,
+    description:
+      "Allow kubelet api, kube-controller-manager, kube-scheduler traffic from private load balancer",
+    ipProtocol: "tcp",
+    cidrIpv4: "0.0.0.0/0",
+    fromPort: 10250,
+    toPort: 10259,
+  },
+);
+
+new aws.vpc.SecurityGroupIngressRule(
+  "k8s-master-node-sg-allow-lb-bgp-inbound",
+  {
+    securityGroupId: k8sMasterNodeSg.id,
+    description: "Allow bgp traffic from private load balancer",
+    ipProtocol: "tcp",
+    cidrIpv4: "0.0.0.0/0",
+    fromPort: 179,
+    toPort: 179,
+  },
+);
+
+new aws.vpc.SecurityGroupIngressRule(
   "k8s-master-node-sg-allow-bastion-ssh-inbound",
   {
     securityGroupId: k8sMasterNodeSg.id,
@@ -334,6 +421,70 @@ new aws.vpc.SecurityGroupIngressRule(
 new aws.vpc.SecurityGroupEgressRule("k8s-master-node-sg-allow-all-outbound", {
   securityGroupId: k8sMasterNodeSg.id,
   description: "Allow all outbound traffic from master node",
+  ipProtocol: "-1",
+  cidrIpv4: "0.0.0.0/0",
+});
+
+new aws.vpc.SecurityGroupIngressRule(
+  "k8s-worker-node-sg-allow-bastion-ssh-inbound",
+  {
+    securityGroupId: k8sWorkerNodeSg.id,
+    description: "Allow bastion host ssh traffic to worker node",
+    referencedSecurityGroupId: bastionHostSg.id,
+    ipProtocol: "tcp",
+    fromPort: 22,
+    toPort: 22,
+  },
+);
+
+new aws.vpc.SecurityGroupIngressRule(
+  "k8s-worker-node-sg-allow-kubelet-api-inbound",
+  {
+    description: "Allow inbound traffic for kubelet api",
+    securityGroupId: k8sWorkerNodeSg.id,
+    cidrIpv4: "0.0.0.0/0",
+    ipProtocol: "tcp",
+    fromPort: 10250,
+    toPort: 10250,
+  },
+);
+
+new aws.vpc.SecurityGroupIngressRule(
+  "k8s-worker-node-sg-allow-cert-manager-webhook-inbound",
+  {
+    description: "Allow inbound traffic for cert manager webhook",
+    securityGroupId: k8sWorkerNodeSg.id,
+    cidrIpv4: "0.0.0.0/0",
+    ipProtocol: "tcp",
+    fromPort: 10260,
+    toPort: 10260,
+  },
+);
+
+new aws.vpc.SecurityGroupIngressRule(
+  "k8s-worker-node-sg-allow-nodeport-inbound",
+  {
+    description: "Allow inbound traffic for node port services in k8s",
+    securityGroupId: k8sWorkerNodeSg.id,
+    cidrIpv4: "0.0.0.0/0",
+    ipProtocol: "tcp",
+    fromPort: 30000,
+    toPort: 32767,
+  },
+);
+
+new aws.vpc.SecurityGroupIngressRule("k8s-worker-node-sg-allow-bgp-inbound", {
+  description: "Allow inbound traffic for bgp",
+  securityGroupId: k8sWorkerNodeSg.id,
+  cidrIpv4: "0.0.0.0/0",
+  ipProtocol: "tcp",
+  fromPort: 179,
+  toPort: 179,
+});
+
+new aws.vpc.SecurityGroupEgressRule("k8s-worker-node-sg-allow-all-outbound", {
+  securityGroupId: k8sWorkerNodeSg.id,
+  description: "Allow all outbound traffic from worker node",
   ipProtocol: "-1",
   cidrIpv4: "0.0.0.0/0",
 });
@@ -374,15 +525,21 @@ new aws.iam.RolePolicy("k8s-worker-node-role-policy", {
   policy: JSON.stringify(k8sWorkerNodeRolePolicyJSON),
 });
 
-new aws.iam.InstanceProfile("k8s-master-node-instance-profile", {
-  name: "k8s-master-node-instance-profile",
-  role: k8sMasterNodeRole.name,
-});
+const k8sMasterNodeInstanceProfile = new aws.iam.InstanceProfile(
+  "k8s-master-node-instance-profile",
+  {
+    name: "k8s-master-node-instance-profile",
+    role: k8sMasterNodeRole.name,
+  },
+);
 
-new aws.iam.InstanceProfile("k8s-worker-node-instance-profile", {
-  name: "k8s-worker-node-instance-profile",
-  role: k8sWorkerNodeRole.name,
-});
+const k8sWorkerNodeInstanceProfile = new aws.iam.InstanceProfile(
+  "k8s-worker-node-instance-profile",
+  {
+    name: "k8s-worker-node-instance-profile",
+    role: k8sWorkerNodeRole.name,
+  },
+);
 
 const bastionHost = new aws.ec2.Instance("bastion-host", {
   ami: bastionHostAMI,
@@ -406,6 +563,8 @@ const k8sMasterNode01 = new aws.ec2.Instance("k8s-master-01", {
   vpcSecurityGroupIds: [k8sMasterNodeSg.id],
   subnetId: privateSubnet01.id,
   keyName: k8sSSHKeyPair.keyName,
+  iamInstanceProfile: k8sMasterNodeInstanceProfile,
+  userData: k8sMasterNode01UserData,
   rootBlockDevice: {
     volumeSize: 32,
     volumeType: "gp3",
@@ -413,6 +572,8 @@ const k8sMasterNode01 = new aws.ec2.Instance("k8s-master-01", {
   },
   tags: {
     Name: "k8s-master-01",
+    KubernetesCluster: clusterName,
+    [`kubernetes.io/cluster/${clusterName}`]: "owned",
   },
 });
 
@@ -426,6 +587,8 @@ const k8sMasterNode02 = new aws.ec2.Instance("k8s-master-02", {
   vpcSecurityGroupIds: [k8sMasterNodeSg.id],
   subnetId: privateSubnet02.id,
   keyName: k8sSSHKeyPair.keyName,
+  userData: k8sNodesUserData,
+  iamInstanceProfile: k8sMasterNodeInstanceProfile,
   rootBlockDevice: {
     volumeSize: 32,
     volumeType: "gp3",
@@ -433,11 +596,37 @@ const k8sMasterNode02 = new aws.ec2.Instance("k8s-master-02", {
   },
   tags: {
     Name: "k8s-master-02",
+    KubernetesCluster: clusterName,
+    [`kubernetes.io/cluster/${clusterName}`]: "owned",
   },
 });
 
 k8sMasterNode02.privateIp.apply((privateIp) =>
   console.log("K8s Master Node 02 Private IP:", privateIp),
+);
+
+const k8sWorkerNode01 = new aws.ec2.Instance("k8s-worker-01", {
+  ami: k8sNodeAMI,
+  instanceType: aws.ec2.InstanceType.T3_Medium,
+  vpcSecurityGroupIds: [k8sWorkerNodeSg.id],
+  subnetId: privateSubnet01.id,
+  keyName: k8sSSHKeyPair.keyName,
+  iamInstanceProfile: k8sWorkerNodeInstanceProfile,
+  userData: k8sNodesUserData,
+  rootBlockDevice: {
+    volumeSize: 32,
+    volumeType: "gp3",
+    deleteOnTermination: true,
+  },
+  tags: {
+    Name: "k8s-worker-01",
+    KubernetesCluster: clusterName,
+    [`kubernetes.io/cluster/${clusterName}`]: "owned",
+  },
+});
+
+k8sWorkerNode01.privateIp.apply((privateIp) =>
+  console.log("K8s Worker Node 01 Private Ip: ", privateIp),
 );
 
 const k8sMasterTg = new aws.lb.TargetGroup("k8s-master-tg", {
@@ -468,6 +657,10 @@ const k8sApiServerLb = new aws.lb.LoadBalancer("k8s-api-server-lb", {
     [`kubernetes.io/cluster/${clusterName}`]: "owned",
   },
 });
+
+k8sApiServerLb.dnsName.apply((dnsName) =>
+  console.log("K8s Api Server Load Balancer DNS: ", dnsName),
+);
 
 new aws.lb.Listener("k8s-api-server-listener", {
   loadBalancerArn: k8sApiServerLb.arn,

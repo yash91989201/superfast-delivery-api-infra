@@ -1,0 +1,30 @@
+# Master Node 01 init config.
+# init.yml
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: ClusterConfiguration
+controlPlaneEndpoint: "<K8S_API_SERVER_LOAD_BALANCER_DNS_NAME>:6443"
+apiServer:
+  certSANs:
+    - 127.0.0.1
+    - <K8S_API_SERVER_LOAD_BALANCER_DNS_NAME>
+  extraArgs:
+    bind-address: "0.0.0.0"
+    cloud-provider: external
+clusterName: kubernetes
+scheduler:
+  extraArgs:
+    bind-address: "0.0.0.0"
+controllerManager:
+  extraArgs:
+    bind-address: "0.0.0.0"
+    cloud-provider: external
+networking:
+  podSubnet: "10.244.0.0/16"
+  serviceSubnet: "10.96.0.0/12"
+---
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: InitConfiguration
+nodeRegistration:
+  name: <K8S_MASTER_NODE_01_INTERNAL_DNS_NAME>
+  kubeletExtraArgs:
+    cloud-provider: external

@@ -1,0 +1,14 @@
+# external dns values for installing with helm chart
+# external-dns-values.yml
+provider: aws
+policy: "sync"
+aws:
+  region: "us-east-1"
+txtOwnerId: "<HOSTED_ZONE_ID>"
+domainFilters:
+  - yashraj-jaiswal.site
+env:
+  - name: AWS_REGION
+    value: "us-east-1"
+  - name: AWS_DEFAULT_REGION
+    value: "us-east-1"

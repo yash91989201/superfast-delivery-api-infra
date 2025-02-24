@@ -1,0 +1,22 @@
+# manifest file for traefik dashboard middlewares
+# traefik-dashboard-middlewares.yml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: dashboard-basic-auth
+  namespace: traefik
+spec:
+  basicAuth:
+    secret: dashboard-basic-auth-creds
+
+---
+#3
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: dashboard-redirectscheme
+  namespace: traefik
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true

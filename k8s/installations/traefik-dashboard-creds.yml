@@ -1,0 +1,11 @@
+# manifest file for traefik dashboard creds
+# traefik-dashboard-creds.yml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dashboard-basic-auth-creds
+  namespace: traefik
+type: kubernetes.io/basic-auth
+stringData:
+  username: admin
+  password: admin

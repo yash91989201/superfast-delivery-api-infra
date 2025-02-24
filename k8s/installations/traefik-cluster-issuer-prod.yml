@@ -1,0 +1,20 @@
+# manifest for cluster issuer
+# traefik-cluster-issuer-prod.yml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: traefik-letsencrypt-prod
+spec:
+  acme:
+    # You must replace this email address with your own.
+    # Let's Encrypt will use this to contact you about expiring
+    # certificates, and issues related to your account.
+    email: yashraj6370@gmail.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      # Secret resource used to store the account's private key.
+      name: traefik-cert-manager-clusterissuer-prod-key
+    solvers:
+      - http01:
+          ingress:
+            class: traefik-cert-manager

@@ -1,0 +1,13 @@
+# helm values for cert manager
+# cert-manager-values.yml
+crds:
+  enabled: true
+
+# Startup API check settings
+startupapicheck:
+  timeout: 5m
+
+# Webhook settings
+webhook:
+  hostNetwork: true
+  securePort: 10260

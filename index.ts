@@ -462,6 +462,30 @@ new aws.vpc.SecurityGroupIngressRule(
 );
 
 new aws.vpc.SecurityGroupIngressRule(
+  "k8s-worker-node-sg-allow-cert-manager-resolver-inbound",
+  {
+    description: "Allow inbound traffic for cert manager resolver",
+    securityGroupId: k8sWorkerNodeSg.id,
+    cidrIpv4: "0.0.0.0/0",
+    ipProtocol: "tcp",
+    fromPort: 8089,
+    toPort: 8089,
+  },
+);
+
+new aws.vpc.SecurityGroupIngressRule(
+  "k8s-worker-node-sg-allow-cert-manager-challenger-inbound",
+  {
+    description: "Allow inbound traffic for cert manager challenger",
+    securityGroupId: k8sWorkerNodeSg.id,
+    cidrIpv4: "0.0.0.0/0",
+    ipProtocol: "tcp",
+    fromPort: 80,
+    toPort: 80,
+  },
+);
+
+new aws.vpc.SecurityGroupIngressRule(
   "k8s-worker-node-sg-allow-nodeport-inbound",
   {
     description: "Allow inbound traffic for node port services in k8s",

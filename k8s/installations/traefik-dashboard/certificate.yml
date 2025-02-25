@@ -1,5 +1,5 @@
 # manifest file for traefik dashboard certificate
-# traefik-dashboard-certificate.yml
+# certificate.yml
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:

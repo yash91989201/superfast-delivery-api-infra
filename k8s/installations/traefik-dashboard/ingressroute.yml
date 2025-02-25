@@ -1,16 +1,15 @@
 # manifest file for traefik dashboard ingress route
-# traefik-dashboard-ingress-route.yml
+# ingressroute.yml
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: dashboard-ingressroute
   namespace: traefik
 spec:
-  entryPoints:
-    - traefik
+  entryPoints: [web, websecure]
   routes:
     - kind: Rule
-      match: Host(`traefik.superfast-delivery.yashraj-jaiswal.site`)
+      match: Host(`traefik.superfast-delivery.yashraj-jaiswal.site`) && PathPrefix(`/`) && !PathPrefix(`/.well-known/acme-challenge/`)
       middlewares:
         - name: dashboard-redirectscheme
           namespace: traefik

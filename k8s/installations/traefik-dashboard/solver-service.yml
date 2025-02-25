@@ -1,3 +1,5 @@
+# manifest for solver service
+# solver-service.yml
 apiVersion: v1
 kind: Service
 metadata:

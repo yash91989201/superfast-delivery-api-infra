@@ -1,5 +1,5 @@
 # manifest for cluster issuer
-# traefik-cluster-issuer-prod.yml
+# clusterissuer-prod.yml
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:

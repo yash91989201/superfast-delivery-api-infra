@@ -1,5 +1,5 @@
 # manifest file for traefik dashboard middlewares
-# traefik-dashboard-middlewares.yml
+# middleware.yml
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
@@ -10,7 +10,6 @@ spec:
     secret: dashboard-basic-auth-creds
 
 ---
-#3
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:

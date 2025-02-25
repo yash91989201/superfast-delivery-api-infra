@@ -7,6 +7,7 @@ service:
     service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "ssl"
     service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "<AWS_CERTIFICATE_ARN>"
+    external-dns.alpha.kubernetes.io/hostname: "*.superfast-delivery.yashraj-jaiswal.site"
 
 providers:
   kubernetesCRD:
@@ -21,9 +22,6 @@ providers:
     ingressClass: traefik-cert-manager
     publishedService:
       enabled: false
-
-deployment:
-  replicas: 2
 
 ports:
   websecure:

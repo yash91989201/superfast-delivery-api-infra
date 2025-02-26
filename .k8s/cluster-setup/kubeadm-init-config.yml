@@ -2,11 +2,11 @@
 # init.yml
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
-controlPlaneEndpoint: "<K8S_API_SERVER_LOAD_BALANCER_DNS_NAME>:6443"
+controlPlaneEndpoint: "LB_DNS:6443"
 apiServer:
   certSANs:
     - 127.0.0.1
-    - <K8S_API_SERVER_LOAD_BALANCER_DNS_NAME>
+    - LB_DNS
   extraArgs:
     bind-address: "0.0.0.0"
     cloud-provider: external
@@ -25,6 +25,6 @@ networking:
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: InitConfiguration
 nodeRegistration:
-  name: <K8S_MASTER_NODE_01_INTERNAL_DNS_NAME>
+  name: MASTER1_DNS
   kubeletExtraArgs:
     cloud-provider: external

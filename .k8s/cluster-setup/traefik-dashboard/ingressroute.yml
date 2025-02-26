@@ -6,7 +6,7 @@ metadata:
   name: dashboard-ingressroute
   namespace: traefik
 spec:
-  entryPoints: [websecure]
+  entryPoints: [web, websecure]
   routes:
     - kind: Rule
       match: Host(`traefik.superfast-delivery.yashraj-jaiswal.site`) && PathPrefix(`/`) && !PathPrefix(`/.well-known/acme-challenge/`)

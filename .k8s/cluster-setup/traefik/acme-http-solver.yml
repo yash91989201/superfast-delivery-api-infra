@@ -1,0 +1,30 @@
+# manifest for acme-http-solver
+# route traffic to solver service
+# acme-http-solver.yml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: acme-http-solver
+  namespace: traefik
+spec:
+  selector:
+    acme.cert-manager.io/http01-solver: "true"
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8089
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: cert-manager-challenge
+  namespace: traefik
+spec:
+  entryPoints: [web]
+  routes:
+    - match: PathPrefix(`/.well-known/acme-challenge/`)
+      kind: Rule
+      services:
+        - name: acme-http-solver
+          port: 80

@@ -1,0 +1,11 @@
+# manifest file for kubernetes dashboard middlewares
+# middleware.yml
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: dashboard-redirectscheme
+  namespace: argocd
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true

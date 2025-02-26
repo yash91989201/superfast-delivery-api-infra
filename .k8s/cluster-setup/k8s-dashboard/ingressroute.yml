@@ -1,0 +1,32 @@
+# manifest file for kubernetes dashboard ingress route
+# ingressroute.yml
+---
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: dashboard-transport
+  namespace: kubernetes-dashboard
+spec:
+  insecureSkipVerify: true
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: dashboard-ingressroute
+  namespace: kubernetes-dashboard
+spec:
+  entryPoints: [websecure]
+  routes:
+    - kind: Rule
+      match: Host(`k8s-dashboard.superfast-delivery.yashraj-jaiswal.site`)
+      middlewares:
+        - name: dashboard-redirectscheme
+          namespace: kubernetes-dashboard
+      services:
+        - kind: Service
+          name: kubernetes-dashboard
+          port: 443
+          serversTransport: dashboard-transport
+  tls:
+    secretName: k8s-dashboard.superfast-delivery.yashraj-jaiswal.site

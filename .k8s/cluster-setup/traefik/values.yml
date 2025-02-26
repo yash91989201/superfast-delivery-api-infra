@@ -4,8 +4,7 @@ service:
   enabled: true
   type: LoadBalancer
   annotations:
-    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
-    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "ssl"
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
     service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "<AWS_CERTIFICATE_ARN>"
     external-dns.alpha.kubernetes.io/hostname: "*.superfast-delivery.yashraj-jaiswal.site"
 
@@ -23,10 +22,19 @@ providers:
     publishedService:
       enabled: false
 
+additionalArguments:
+  - --api.dashboard=true
+  - --api.insecure=false
+  - --accesslog=true
+  - --accesslog.format=json
+  - --accesslog.fields.headers.defaultmode=keep
+
 ports:
   websecure:
     tls:
       enabled: true
+
+externalTrafficPolicy: Local
 
 persistence:
   enabled: true

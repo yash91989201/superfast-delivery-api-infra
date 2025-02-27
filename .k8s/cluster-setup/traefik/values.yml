@@ -1,5 +1,5 @@
 # values for traefik helm installation
-# traefik-values.yml
+# values.yml
 service:
   enabled: true
   type: LoadBalancer
@@ -19,7 +19,6 @@ providers:
     enabled: true
     allowExternalNameServices: false
     allowEmptyServices: false
-    ingressClass: traefik-cert-manager
     publishedService:
       enabled: false
 

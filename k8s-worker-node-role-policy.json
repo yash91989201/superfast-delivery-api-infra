@@ -137,6 +137,7 @@
         "autoscaling:DeleteAutoScalingGroup",
         "autoscaling:DescribeScalingActivities",
         "route53:ListHostedZones",
+        "route53:ListHostedZonesByName",
         "route53:ChangeResourceRecordSets",
         "route53:GetChange",
         "route53:ChangeResourceRecordSets",

@@ -37,6 +37,9 @@ WORKER_JOIN_CMD=$(cat "/home/ubuntu/worker-join-cmd")
 aws ssm put-parameter --name "/k8s/join/master" --value "$MASTER_JOIN_CMD" --type "SecureString" --overwrite
 aws ssm put-parameter --name "/k8s/join/worker" --value "$WORKER_JOIN_CMD" --type "SecureString" --overwrite
 
+echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >>/.bashrc
+source /.bashrc
+
 echo "Waiting for at least 3 ready nodes..."
 
 while true; do

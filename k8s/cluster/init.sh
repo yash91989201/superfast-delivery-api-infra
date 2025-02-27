@@ -33,10 +33,10 @@ source /.bashrc
 
 # Clone the AWS cloud provider repository and apply the configuration
 git clone https://github.com/kubernetes/cloud-provider-aws.git
-kubectl apply --validate=false -k cloud-provider-aws/examples/existing-cluster/base
+kubectl apply -k cloud-provider-aws/examples/existing-cluster/base
 
 # Apply the Calico network manifest
-kubectl apply --validate=false -f https://docs.projectcalico.org/manifests/calico.yaml
+kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 
 # Generate the join command for worker nodes
 JOIN_CMD=$(sudo kubeadm token create --print-join-command)

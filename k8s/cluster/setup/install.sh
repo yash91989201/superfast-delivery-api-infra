@@ -27,6 +27,6 @@ helm upgrade -i cert-manager jetstack/cert-manager -n cert-manager -f cert-manag
 
 helm upgrade -i traefik traefik/traefik -n traefik -f traefik/values.yml
 
-helm upgrade --install metrics-server metrics-server/metrics-server
+helm install metrics-server metrics-server/metrics-server -n kube-system --set args={--kubelet-insecure-tls}
 
 kubectl apply -f cert-manager/clusterissuer-staging.yml

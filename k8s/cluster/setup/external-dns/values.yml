@@ -2,7 +2,7 @@ provider: aws
 policy: "sync"
 aws:
   region: "us-east-1"
-txtOwnerId: HOSTED_ZONE_ID
+txtOwnerId: "HOSTED_ZONE_ID"
 domainFilters:
   - yashraj-jaiswal.site
 env:

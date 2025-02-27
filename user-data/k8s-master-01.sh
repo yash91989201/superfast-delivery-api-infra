@@ -12,16 +12,7 @@ hostnamectl set-hostname "$DNS_NAME"
 # Prevent CloudInit from resetting the hostname on reboot
 echo "preserve_hostname: true" | sudo tee -a /etc/cloud/cloud.cfg >/dev/null
 
-# File path for kubelet config
-KUBELET_CONFIG="/etc/default/kubelet"
-
-# Check if the file exists, if not, create it
-if [ ! -f "$KUBELET_CONFIG" ]; then
-  echo "KUBELET_EXTRA_ARGS='--cloud-provider=external --node-ip=$NODE_IP'" | sudo tee "$KUBELET_CONFIG"
-else
-  # Update the line to include --node-ip
-  sudo sed -i "s|--cloud-provider=external|--cloud-provider=external --node-ip=$NODE_IP|g" "$KUBELET_CONFIG"
-fi
+echo "KUBELET_EXTRA_ARGS='--cloud-provider=external --node-ip=$NODE_IP'" >/etc/default/kubelet
 
 # Restart kubelet to apply changes
 sudo systemctl daemon-reload

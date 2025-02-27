@@ -31,6 +31,7 @@ sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
 echo "export KUBECONFIG=/.kube/config" >>/.bashrc
 source /.bashrc
 
+sleep 2m
 # Clone the AWS cloud provider repository and apply the configuration
 git clone https://github.com/kubernetes/cloud-provider-aws.git
 kubectl apply -k cloud-provider-aws/examples/existing-cluster/base

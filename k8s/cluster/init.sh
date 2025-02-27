@@ -31,8 +31,6 @@ sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
 echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >>/.bashrc
 source /.bashrc
 
-sleep 2m
-sudo -u ubuntu -i
 # Clone the AWS cloud provider repository and apply the configuration
 git clone https://github.com/kubernetes/cloud-provider-aws.git
 kubectl apply --validate=false -k cloud-provider-aws/examples/existing-cluster/base
@@ -59,5 +57,3 @@ echo "$MASTER_JOIN_CMD"
 
 echo "Worker Join Command:"
 echo "$WORKER_JOIN_CMD"
-
-sudo su

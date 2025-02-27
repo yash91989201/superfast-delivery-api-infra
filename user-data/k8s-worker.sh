@@ -29,4 +29,6 @@ while [[ -z "$WORKER_JOIN_CMD" ]]; do
   fi
 done
 
-eval "$WORKER_JOIN_CMD"
+sudo -u ubuntu -i
+
+bash -c "$WORKER_JOIN_CMD" | tee /tmp/join_output.log

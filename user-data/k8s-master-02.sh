@@ -29,4 +29,6 @@ while [[ -z "$MASTER_JOIN_CMD" ]]; do
   fi
 done
 
-eval "$MASTER_JOIN_CMD"
+sudo -u ubuntu -i
+
+bash -c "$MASTER_JOIN_CMD" | tee /tmp/join_output.log

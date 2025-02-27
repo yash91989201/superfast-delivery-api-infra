@@ -47,8 +47,7 @@ while true; do
   READY_NODES=$(kubectl get nodes --no-headers | grep -c "Ready")
 
   if [[ $READY_NODES -ge 3 ]]; then
-    echo "Cluster has $READY_NODES ready nodes. Exiting..."
-    exit 0
+    echo "Cluster has $READY_NODES ready nodes. Continuing..."
   fi
 
   echo "Current ready nodes: $READY_NODES. Retrying in 5 seconds..."

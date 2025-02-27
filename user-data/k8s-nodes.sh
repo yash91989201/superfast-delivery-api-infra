@@ -3,6 +3,7 @@
 TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
 
 # Fetch the private DNS name from instance metadata
+NODE_IP=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/local-ipv4)
 DNS_NAME=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/local-hostname)
 
 # Set the hostname dynamically
@@ -17,14 +18,10 @@ KUBELET_CONFIG="/etc/default/kubelet"
 # Check if the file exists, if not, create it
 if [ ! -f "$KUBELET_CONFIG" ]; then
   echo "Creating $KUBELET_CONFIG"
-  echo "KUBELET_EXTRA_ARGS='--cloud-provider=external'" | sudo tee "$KUBELET_CONFIG"
+  echo "KUBELET_EXTRA_ARGS='--cloud-provider=external --node-ip=$NODE_IP'" | sudo tee "$KUBELET_CONFIG"
 else
-  # If the line exists, update it. If not, append it.
-  if grep -q "KUBELET_EXTRA_ARGS=" "$KUBELET_CONFIG"; then
-    sudo sed -i 's|^KUBELET_EXTRA_ARGS=.*|KUBELET_EXTRA_ARGS="--cloud-provider=external"|' "$KUBELET_CONFIG"
-  else
-    echo "KUBELET_EXTRA_ARGS='--cloud-provider=external'" | sudo tee -a "$KUBELET_CONFIG"
-  fi
+  # Update the line to include --node-ip
+  sudo sed -i "s|--cloud-provider=external|--cloud-provider=external --node-ip=$NODE_IP|g" "$KUBELET_CONFIG"
 fi
 
 # Restart kubelet to apply changes

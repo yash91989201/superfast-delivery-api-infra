@@ -23,12 +23,12 @@ kubeadm config migrate --old-config config.yml --new-config config.yml
 sudo kubeadm init --config config.yml
 
 # Configure kubectl for the current user
-mkdir -p $HOME/.kube
-sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-sudo chown $(id -u):$(id -g) $HOME/.kube/config
+mkdir -p /home/ubuntu/.kube
+sudo cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
+sudo chown $(id -u):$(id -g) /home/ubuntu/.kube/config
 # Configure kubectl for root user
-sudo su -c 'echo "export KUBECONFIG=$HOME/.kube/config" >> ~/.bashrc'
-sudo su -c 'source ~/.bashrc'
+sudo su -c 'echo "export KUBECONFIG=$HOME/.kube/config" >> /.bashrc'
+sudo su -c 'source /.bashrc'
 
 # Clone the AWS cloud provider repository and apply the configuration
 git clone https://github.com/kubernetes/cloud-provider-aws.git

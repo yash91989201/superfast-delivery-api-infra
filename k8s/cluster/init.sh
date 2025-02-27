@@ -28,7 +28,7 @@ mkdir -p /home/ubuntu/.kube
 sudo cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
 sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
 # Configure kubectl for root user
-echo "export KUBECONFIG=/.kube/config" >>/.bashrc
+echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >>/.bashrc
 source /.bashrc
 
 sleep 2m

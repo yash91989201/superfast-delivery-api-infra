@@ -1,0 +1,18 @@
+# manifest file for headlamp ingress route
+# ingressroute.yml
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: dashboard-ingressroute
+  namespace: headlamp
+spec:
+  entryPoints: [web, websecure]
+  routes:
+    - kind: Rule
+      match: Host(`headlamp.superfast-delivery.yashraj-jaiswal.site`)
+      services:
+        - kind: Service
+          name: headlamp
+          port: 80
+  tls:
+    secretName: headlamp.superfast-delivery.yashraj-jaiswal.site

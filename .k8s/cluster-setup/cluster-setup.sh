@@ -8,9 +8,14 @@ helm repo add jetstack https://charts.jetstack.io
 
 helm repo add traefik https://helm.traefik.io/traefik
 
+helm repo add headlamp https://headlamp-k8s.github.io/headlamp
+
+helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server
+
 # Create required namespaces
 kubectl create ns argocd
 kubectl create ns traefik
+kubectl create ns headlamp
 kubectl create ns cert-manager
 
 # Installations
@@ -18,24 +23,23 @@ helm upgrade --install external-dns external-dns/external-dns -n kube-system -f 
 
 kubectl apply -f storageclass/manifest.yml
 
-helm upgrade -i cert-manager jetstack/cert-manager -n cert-manager --create-namespace -f cert-manager/values.yml
+helm upgrade -i cert-manager jetstack/cert-manager -n cert-manager -f cert-manager/values.yml
 
 helm upgrade -i traefik traefik/traefik -n traefik -f traefik/values.yml
 
-kubectl apply -f cluster-setup/clusterissuer-staging.yml
+helm upgrade --install metrics-server metrics-server/metrics-server
 
-kubectl apply -f traefik/acme-http-solver.yml
+kubectl apply -f cluster-setup/clusterissuer-staging.yml
 
 # Steup traefik dashboard
 cd traefik-dashboard
 kubectl apply -f secret.yml -f middleware.yml -f certificate.yml -f ingressroute.yml
 
-# Steup k8s-dashboard
-cd ../k8s-dashboard
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
-kubectl apply -f middleware.yml -f certificate.yml -f ingressroute.yml -f cluster-role-binding.yml -f service-account.yml
-# create k8s dashboard token
-kubectl -n kubernetes-dashboard create token admin-user
+# Steup headlamp
+cd ../headlamp
+kubectl apply -f certificate.yml -f ingressroute.yml
+# create headlamp token
+kubectl create token headlamp --namespace headlamp --duration=0
 
 # Steup argocd
 cd ../argocd

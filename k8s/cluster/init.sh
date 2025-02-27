@@ -1,33 +1,27 @@
 #!/bin/bash
 
 LB_DNS=""
+PORT=6443
 MASTER1_DNS=$(hostname)
 
 while [[ -z "$LB_DNS" ]]; do
-  # Fetch load balancer ARN with the required tag
-  LB_ARN=$(aws elbv2 describe-load-balancers | jq -r '.LoadBalancers[].LoadBalancerArn' |
-    xargs -I {} aws elbv2 describe-tags --resource-arns {} --query "TagDescriptions[?Tags[?Key=='k8s-api-server-lb' && Value=='true']].ResourceArn" --output text)
-
-  if [[ -n "$LB_ARN" ]]; then
-    # Check if load balancer is active
-    LB_STATE=$(aws elbv2 describe-load-balancers --load-balancer-arns "$LB_ARN" --query "LoadBalancers[0].State.Code" --output text)
-
-    if [[ "$LB_STATE" == "active" ]]; then
-      # Get DNS name if active
-      LB_DNS=$(aws elbv2 describe-load-balancers --load-balancer-arns "$LB_ARN" --query "LoadBalancers[0].DNSName" --output text)
-    else
-      echo "Load balancer is not active yet. Waiting..."
-    fi
-  else
-    echo "Load balancer ARN not found. Waiting..."
-  fi
+  LB_DNS=$(aws elbv2 describe-load-balancers | jq -r '.LoadBalancers[].LoadBalancerArn' |
+    xargs -I {} aws elbv2 describe-tags --resource-arns {} --query "TagDescriptions[?Tags[?Key=='k8s-api-server-lb' && Value=='true']].ResourceArn" --output text |
+    xargs -I {} aws elbv2 describe-load-balancers --load-balancer-arns {} --query "LoadBalancers[0].DNSName" --output text)
 
   if [[ -z "$LB_DNS" ]]; then
+    echo "Waiting for load balancer DNS..."
     sleep 5
   fi
 done
 
-nc -zv $LB_DNS 6443
+echo "Waiting for connection to $LB_DNS:$PORT..."
+
+while ! nc -zv $LB_DNS $PORT 2>/dev/null; do
+  sleep 2
+done
+
+echo "Connected successfully to LB"
 
 sed -i "s/LB_DNS/${LB_DNS}/g; s/MASTER1_DNS/${MASTER1_DNS}/g" config.yml
 

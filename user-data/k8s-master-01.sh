@@ -41,7 +41,7 @@ echo "Waiting for at least 3 ready nodes..."
 
 while true; do
   # Count nodes in 'Ready' state
-  READY_NODES=$(kubectl get nodes --no-headers 2>/dev/null | grep -c " Ready")
+  READY_NODES=$(kubectl get nodes --no-headers | grep -c "Ready")
 
   if [[ $READY_NODES -ge 3 ]]; then
     echo "Cluster has $READY_NODES ready nodes. Exiting..."

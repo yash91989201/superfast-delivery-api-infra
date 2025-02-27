@@ -48,6 +48,8 @@ source /.bashrc
 # wait for some time so that the worker node 1 is ready
 sleep 4m
 
+kubectl get nodes
+
 # Clone the AWS cloud provider repository and apply the configuration
 git clone https://github.com/kubernetes/cloud-provider-aws.git
 kubectl apply -k cloud-provider-aws/examples/existing-cluster/base

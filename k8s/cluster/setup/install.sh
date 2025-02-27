@@ -1,5 +1,9 @@
 #!/bin/bash
 
+HOSTED_ZONE_ID=$(aws route53 list-hosted-zones-by-name --dns-name yashraj-jaiswal.site --query "HostedZones[0].Id" --output text | cut -d'/' -f3)
+
+sed -i "s/HOSTED_ZONE_ID/$HOSTED_ZONE_ID/g" external-dns/values.yml
+
 # Create required namespaces
 kubectl create ns traefik
 kubectl create ns cert-manager

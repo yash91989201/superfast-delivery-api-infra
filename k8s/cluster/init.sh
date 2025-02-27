@@ -1,5 +1,12 @@
 #!/bin/bash
 
+MASTER1_DNS=$(hostname)
+LB_DNS=$(aws elbv2 describe-load-balancers | jq -r '.LoadBalancers[].LoadBalancerArn' |
+  xargs -I {} aws elbv2 describe-tags --resource-arns {} --query "TagDescriptions[?Tags[?Key=='k8s-api-server-lb' && Value=='true']].ResourceArn" --output text |
+  xargs -I {} aws elbv2 describe-load-balancers --load-balancer-arns {} --query "LoadBalancers[0].DNSName" --output text)
+
+sed -i "s/LB_DNS/${LB_DNS}/g; s/MASTER1_DNS/${MASTER1_DNS}/g" config.yml
+
 # Migrate the kubeadm configuration
 kubeadm config migrate --old-config config.yml --new-config config.yml
 

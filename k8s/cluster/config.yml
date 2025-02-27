@@ -1,6 +1,6 @@
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
-controlPlaneEndpoint: "LB_DNS:6443"
+controlPlaneEndpoint: LB_DNS:6443
 apiServer:
   certSANs:
     - 127.0.0.1

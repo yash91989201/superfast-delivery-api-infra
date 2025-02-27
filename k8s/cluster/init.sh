@@ -17,9 +17,26 @@ done
 
 echo "Waiting for connection to $LB_DNS:$PORT..."
 
+# Start socat in the background to spoof the health check response
+sudo nohup socat TCP-LISTEN:$PORT,reuseaddr,fork SYSTEM:"echo 'HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n'" >/dev/null 2>&1 &
+
+SOCAT_PID=$! # Capture socat's process ID
+
+echo "Waiting for load balancer to become accessible..."
 while ! nc -zv $LB_DNS $PORT 2>/dev/null; do
   sleep 2
 done
+
+echo "Load balancer is now accessible! Stopping socat..."
+sudo kill $SOCAT_PID
+
+# Ensure socat is fully stopped
+while sudo lsof -i :$PORT >/dev/null 2>&1; do
+  echo "Waiting for port $PORT to be freed..."
+  sleep 2
+done
+
+echo "Port $PORT is now available. Proceeding with kubeadm init."
 
 echo "Connected successfully to LB"
 

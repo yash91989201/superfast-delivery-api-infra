@@ -27,6 +27,8 @@ while [[ -z "$LB_DNS" ]]; do
   fi
 done
 
+nc -zv $LB_DNS 6443
+
 sed -i "s/LB_DNS/${LB_DNS}/g; s/MASTER1_DNS/${MASTER1_DNS}/g" config.yml
 
 # Migrate the kubeadm configuration

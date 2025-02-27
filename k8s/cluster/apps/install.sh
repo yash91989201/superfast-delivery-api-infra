@@ -16,8 +16,6 @@ kubectl apply -f argocd.yml
 
 kubectl apply -f headlamp.yml
 
-echo "Headlamp Admin Token:"
-kubectl get secret headlamp-admin-token -n kube-system -o jsonpath='{.data.token}' | base64 --decode && echo
+kubectl get secret headlamp-admin-token -n kube-system -o jsonpath='{.data.token}' | base64 --decode >/home/ubuntu/headlamp-admin-token
 
-echo "Argocd Initial Admin Secret"
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d && echo
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d >/home/ubuntu/argocd-initial-admin-secret

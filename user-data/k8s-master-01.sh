@@ -29,3 +29,27 @@ sudo ./aws/install
 
 git clone https://github.com/yash91989201/superfast-delivery-api-infra /home/ubuntu/superfast-delivery-api-infra
 chown -R ubuntu:ubuntu /home/ubuntu/superfast-delivery-api-infra
+
+cd /home/ubuntu/superfast-delivery-api-infra/k8s/cluster
+
+chmod 777 init.sh
+
+./init.sh
+
+MASTER_JOIN_CMD=$(cat "/home/ubuntu/master-join-cmd")
+WORKER_JOIN_CMD=$(cat "/home/ubuntu/worker-join-cmd")
+
+aws ssm put-parameter --name "/k8s/join/master" --value "$MASTER_JOIN_CMD" --type "SecureString" --overwrite
+aws ssm put-parameter --name "/k8s/join/worker" --value "$WORKER_JOIN_CMD" --type "SecureString" --overwrite
+
+cd /home/ubuntu/superfast-delivery-api-infra/k8s/cluster/setup
+
+chmod 700 install.sh
+
+./install.sh
+
+cd /home/ubuntu/superfast-delivery-api-infra/k8s/cluster/apps
+
+chmod 700 install.sh
+
+./install.sh

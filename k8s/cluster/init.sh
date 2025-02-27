@@ -1,9 +1,18 @@
 #!/bin/bash
 
+LB_DNS=""
 MASTER1_DNS=$(hostname)
-LB_DNS=$(aws elbv2 describe-load-balancers | jq -r '.LoadBalancers[].LoadBalancerArn' |
-  xargs -I {} aws elbv2 describe-tags --resource-arns {} --query "TagDescriptions[?Tags[?Key=='k8s-api-server-lb' && Value=='true']].ResourceArn" --output text |
-  xargs -I {} aws elbv2 describe-load-balancers --load-balancer-arns {} --query "LoadBalancers[0].DNSName" --output text)
+
+while [[ -z "$LB_DNS" ]]; do
+  LB_DNS=$(aws elbv2 describe-load-balancers | jq -r '.LoadBalancers[].LoadBalancerArn' |
+    xargs -I {} aws elbv2 describe-tags --resource-arns {} --query "TagDescriptions[?Tags[?Key=='k8s-api-server-lb' && Value=='true']].ResourceArn" --output text |
+    xargs -I {} aws elbv2 describe-load-balancers --load-balancer-arns {} --query "LoadBalancers[0].DNSName" --output text)
+
+  if [[ -z "$LB_DNS" ]]; then
+    echo "Waiting for load balancer DNS..."
+    sleep 5
+  fi
+done
 
 sed -i "s/LB_DNS/${LB_DNS}/g; s/MASTER1_DNS/${MASTER1_DNS}/g" config.yml
 
@@ -37,6 +46,9 @@ CERT_KEY=$(sudo kubeadm init phase upload-certs --upload-certs | tail -1)
 # Create the master and worker join commands
 MASTER_JOIN_CMD="sudo $JOIN_CMD --control-plane --certificate-key $CERT_KEY"
 WORKER_JOIN_CMD="sudo $JOIN_CMD"
+
+echo "$MASTER_JOIN_CMD" >/home/ubuntu/master-join-cmd
+echo "$WORKER_JOIN_CMD" >/home/ubuntu/worker-join-cmd
 
 # Print the join commands
 echo "Master Join Command:"

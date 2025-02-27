@@ -32,14 +32,23 @@ const bastionHostScript = fs.readFileSync(
   "utf-8",
 );
 
-const k8sNodesUserData = fs.readFileSync("./user-data/k8s-nodes.sh", "utf-8");
+const bastionHostUserData = k8sSSHKey.privateKeyOpenssh.apply((privateKey) =>
+  bastionHostScript.replace("{{K8S_SSH_PRIVATE_KEY}}", privateKey),
+);
+
 const k8sMasterNode01UserData = fs.readFileSync(
   "./user-data/k8s-master-01.sh",
   "utf-8",
 );
 
-const bastionHostUserData = k8sSSHKey.privateKeyOpenssh.apply((privateKey) =>
-  bastionHostScript.replace("{{K8S_SSH_PRIVATE_KEY}}", privateKey),
+const k8sMasterNode02UserData = fs.readFileSync(
+  "./user-data/k8s-master-02.sh",
+  "utf-8",
+);
+
+const k8sWorkerNodeUserData = fs.readFileSync(
+  "./user-data/k8s-worker.sh",
+  "utf-8",
 );
 
 const availabilityZones = await aws.getAvailabilityZones({
@@ -611,7 +620,7 @@ const k8sMasterNode02 = new aws.ec2.Instance("k8s-master-02", {
   vpcSecurityGroupIds: [k8sMasterNodeSg.id],
   subnetId: privateSubnet02.id,
   keyName: k8sSSHKeyPair.keyName,
-  userData: k8sNodesUserData,
+  userData: k8sMasterNode02UserData,
   iamInstanceProfile: k8sMasterNodeInstanceProfile,
   rootBlockDevice: {
     volumeSize: 32,
@@ -636,7 +645,7 @@ const k8sWorkerNode01 = new aws.ec2.Instance("k8s-worker-01", {
   subnetId: privateSubnet01.id,
   keyName: k8sSSHKeyPair.keyName,
   iamInstanceProfile: k8sWorkerNodeInstanceProfile,
-  userData: k8sNodesUserData,
+  userData: k8sWorkerNodeUserData,
   rootBlockDevice: {
     volumeSize: 32,
     volumeType: "gp3",

@@ -14,10 +14,10 @@ kubectl apply -f headlamp.yml
 #
 kubectl apply -f argocd.yml
 
-sleep 1m
-#
-kubectl create serviceaccount headlamp-admin -n headlamp
-kubectl create clusterrolebinding headlamp-admin --serviceaccount=headlamp:headlamp-admin --clusterrole=cluster-admin
-kubectl create token headlamp-admin -n headlamp --duration=0
+kubectl apply -f headlamp.yml
 
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+echo "Headlamp Admin Token:"
+kubectl get secret headlamp-admin-token -n kube-system -o jsonpath='{.data.token}' | base64 --decode && echo
+
+echo "Argocd Initial Admin Secret"
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d && echo

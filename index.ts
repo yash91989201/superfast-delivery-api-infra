@@ -678,6 +678,7 @@ const k8sApiServerLb = new aws.lb.LoadBalancer("k8s-api-server-lb", {
   subnets: [privateSubnet01.id, privateSubnet02.id],
   tags: {
     Name: "k8s-api-server-lb",
+    "k8s-api-server-lb": "true",
     [`kubernetes.io/cluster/${clusterName}`]: "owned",
   },
 });

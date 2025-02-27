@@ -18,15 +18,15 @@ echo "KUBELET_EXTRA_ARGS='--cloud-provider=external --node-ip=$NODE_IP'" >/etc/d
 sudo systemctl daemon-reload
 sudo systemctl restart kubelet
 
-WORKER_JOIN_CMD=""
+MASTER_JOIN_CMD=""
 
-while [[ -z "$WORKER_JOIN_CMD" ]]; do
-  WORKER_JOIN_CMD=$(aws ssm get-parameter --name "/k8s/join/worker" --with-decryption --query "Parameter.Value" --output text)
+while [[ -z "$MASTER_JOIN_CMD" ]]; do
+  MASTER_JOIN_CMD=$(aws ssm get-parameter --name "/k8s/join/master" --with-decryption --query "Parameter.Value" --output text)
 
-  if [[ -z "$WORKER_JOIN_CMD" ]]; then
+  if [[ -z "$MASTER_JOIN_CMD" ]]; then
     echo "Waiting for worker join command..."
     sleep 5
   fi
 done
 
-eval "$WORKER_JOIN_CMD"
+eval "$MASTER_JOIN_CMD"

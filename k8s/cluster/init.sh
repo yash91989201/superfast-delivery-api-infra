@@ -59,3 +59,5 @@ echo "$MASTER_JOIN_CMD"
 
 echo "Worker Join Command:"
 echo "$WORKER_JOIN_CMD"
+
+sudo -su

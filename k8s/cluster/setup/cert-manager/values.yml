@@ -1,5 +1,3 @@
-# helm values for cert manager
-# cert-manager-values.yml
 crds:
   enabled: true
 

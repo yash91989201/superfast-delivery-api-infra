@@ -1,0 +1,32 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: dashboard-certificate
+  namespace: headlamp
+spec:
+  commonName: headlamp.superfast-delivery.yashraj-jaiswal.site
+  secretName: headlamp.superfast-delivery.yashraj-jaiswal.site
+  dnsNames:
+    - headlamp.superfast-delivery.yashraj-jaiswal.site
+  issuerRef:
+    name: traefik-letsencrypt-staging
+    kind: ClusterIssuer
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: dashboard-ingressroute
+  namespace: headlamp
+spec:
+  entryPoints: [websecure]
+  routes:
+    - kind: Rule
+      match: Host(`headlamp.superfast-delivery.yashraj-jaiswal.site`)
+      services:
+        - kind: Service
+          name: headlamp
+          scheme: http
+          port: 80
+  tls:
+    secretName: headlamp.superfast-delivery.yashraj-jaiswal.site

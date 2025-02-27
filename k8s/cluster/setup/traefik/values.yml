@@ -1,5 +1,3 @@
-# values for traefik helm installation
-# values.yml
 service:
   enabled: true
   type: LoadBalancer

@@ -1,5 +1,17 @@
-# manifest file for  argocd dashboard ingress route
-# ingressroute.yml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: dashboard-certificate
+  namespace: argocd
+spec:
+  commonName: argocd.superfast-delivery.yashraj-jaiswal.site
+  secretName: argocd.superfast-delivery.yashraj-jaiswal.site
+  dnsNames:
+    - argocd.superfast-delivery.yashraj-jaiswal.site
+  issuerRef:
+    name: traefik-letsencrypt-staging
+    kind: ClusterIssuer
+
 ---
 apiVersion: traefik.io/v1alpha1
 kind: ServersTransport
@@ -20,9 +32,6 @@ spec:
   routes:
     - kind: Rule
       match: Host(`argocd.superfast-delivery.yashraj-jaiswal.site`)
-      middlewares:
-        - name: dashboard-redirectscheme
-          namespace: argocd
       services:
         - kind: Service
           name: argocd-server

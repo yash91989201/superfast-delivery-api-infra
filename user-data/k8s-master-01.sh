@@ -37,7 +37,20 @@ WORKER_JOIN_CMD=$(cat "/home/ubuntu/worker-join-cmd")
 aws ssm put-parameter --name "/k8s/join/master" --value "$MASTER_JOIN_CMD" --type "SecureString" --overwrite
 aws ssm put-parameter --name "/k8s/join/worker" --value "$WORKER_JOIN_CMD" --type "SecureString" --overwrite
 
-sleep 3m
+echo "Waiting for at least 3 ready nodes..."
+
+while true; do
+  # Count nodes in 'Ready' state
+  READY_NODES=$(kubectl get nodes --no-headers 2>/dev/null | grep -c " Ready")
+
+  if [[ $READY_NODES -ge 3 ]]; then
+    echo "Cluster has $READY_NODES ready nodes. Exiting..."
+    exit 0
+  fi
+
+  echo "Current ready nodes: $READY_NODES. Retrying in 5 seconds..."
+  sleep 5
+done
 
 cd /home/ubuntu/superfast-delivery-api-infra/k8s/cluster/setup
 

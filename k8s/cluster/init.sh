@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Migrate the kubeadm configuration
-kubeadm config migrate --old-config init-config.yml --new-config init-config.yml
+kubeadm config migrate --old-config config.yml --new-config config.yml
 
 # Initialize the Kubernetes cluster
-sudo kubeadm init --config init-config.yml
+sudo kubeadm init --config config.yml
 
 # Configure kubectl for the current user
 mkdir -p $HOME/.kube

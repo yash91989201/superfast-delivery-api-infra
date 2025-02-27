@@ -1,11 +1,9 @@
 crds:
   enabled: true
 
-# Startup API check settings
 startupapicheck:
   timeout: 5m
 
-# Webhook settings
 webhook:
   hostNetwork: true
   securePort: 10260

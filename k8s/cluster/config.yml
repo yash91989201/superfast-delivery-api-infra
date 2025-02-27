@@ -1,5 +1,3 @@
-# Master Node 01 init config.
-# init.yml
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
 controlPlaneEndpoint: "LB_DNS:6443"

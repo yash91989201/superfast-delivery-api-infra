@@ -37,6 +37,8 @@ WORKER_JOIN_CMD=$(cat "/home/ubuntu/worker-join-cmd")
 aws ssm put-parameter --name "/k8s/join/master" --value "$MASTER_JOIN_CMD" --type "SecureString" --overwrite
 aws ssm put-parameter --name "/k8s/join/worker" --value "$WORKER_JOIN_CMD" --type "SecureString" --overwrite
 
+sleep 2m
+
 cd /home/ubuntu/superfast-delivery-api-infra/k8s/cluster/setup
 
 chmod 700 install.sh

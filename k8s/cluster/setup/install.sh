@@ -8,6 +8,13 @@ sed -i "s/HOSTED_ZONE_ID/$HOSTED_ZONE_ID/g" external-dns/values.yml
 kubectl create ns traefik
 kubectl create ns cert-manager
 
+# Clone the AWS cloud provider repository and apply the configuration
+git clone https://github.com/kubernetes/cloud-provider-aws.git
+kubectl apply -k cloud-provider-aws/examples/existing-cluster/base
+
+# Apply the Calico network manifest
+kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+
 kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=release-1.40"
 
 helm repo add external-dns https://kubernetes-sigs.github.io/external-dns

@@ -15,31 +15,6 @@ while [[ -z "$LB_DNS" ]]; do
   fi
 done
 
-echo "Waiting for connection to $LB_DNS:$PORT..."
-
-# Start socat in the background to spoof the health check response
-sudo nohup socat TCP-LISTEN:$PORT,reuseaddr,fork SYSTEM:"echo 'HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n'" >/dev/null 2>&1 &
-
-SOCAT_PID=$! # Capture socat's process ID
-
-echo "Waiting for load balancer to become accessible..."
-while ! nc -zv $LB_DNS $PORT 2>/dev/null; do
-  sleep 2
-done
-
-echo "Load balancer is now accessible! Stopping socat..."
-sudo kill $SOCAT_PID
-
-# Ensure socat is fully stopped
-while sudo lsof -i :$PORT >/dev/null 2>&1; do
-  echo "Waiting for port $PORT to be freed..."
-  sleep 2
-done
-
-echo "Port $PORT is now available. Proceeding with kubeadm init."
-
-echo "Connected successfully to LB"
-
 sed -i "s/LB_DNS/${LB_DNS}/g; s/MASTER1_DNS/${MASTER1_DNS}/g" config.yml
 
 # Migrate the kubeadm configuration
@@ -55,18 +30,6 @@ sudo chown -R ubuntu:ubuntu /home/ubuntu/.kube
 # Configure kubectl for root user
 echo "export KUBECONFIG=/.kube/config" >>/.bashrc
 source /.bashrc
-
-# wait for some time so that the worker node 1 is ready
-sleep 4m
-
-kubectl get nodes
-
-# Clone the AWS cloud provider repository and apply the configuration
-git clone https://github.com/kubernetes/cloud-provider-aws.git
-kubectl apply -k cloud-provider-aws/examples/existing-cluster/base
-
-# Apply the Calico network manifest
-kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 
 # Generate the join command for worker nodes
 JOIN_CMD=$(sudo kubeadm token create --print-join-command)

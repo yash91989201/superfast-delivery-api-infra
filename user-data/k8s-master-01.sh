@@ -34,8 +34,6 @@ cd /home/ubuntu/superfast-delivery-api-infra/k8s/cluster
 
 chmod 700 init.sh
 
-sleep 2m
-
 ./init.sh
 
 MASTER_JOIN_CMD=$(cat "/home/ubuntu/master-join-cmd")
@@ -43,6 +41,10 @@ WORKER_JOIN_CMD=$(cat "/home/ubuntu/worker-join-cmd")
 
 aws ssm put-parameter --name "/k8s/join/master" --value "$MASTER_JOIN_CMD" --type "SecureString" --overwrite
 aws ssm put-parameter --name "/k8s/join/worker" --value "$WORKER_JOIN_CMD" --type "SecureString" --overwrite
+
+sleep 6m
+
+kubectl get nodes
 
 cd /home/ubuntu/superfast-delivery-api-infra/k8s/cluster/setup
 

@@ -18,6 +18,11 @@ echo "KUBELET_EXTRA_ARGS='--cloud-provider=external --node-ip=$NODE_IP'" >/etc/d
 sudo systemctl daemon-reload
 sudo systemctl restart kubelet
 
+apt install unzip
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+
 WORKER_JOIN_CMD=""
 
 while [[ -z "$WORKER_JOIN_CMD" ]]; do

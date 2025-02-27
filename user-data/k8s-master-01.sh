@@ -32,7 +32,9 @@ chown -R ubuntu:ubuntu /home/ubuntu/superfast-delivery-api-infra
 
 cd /home/ubuntu/superfast-delivery-api-infra/k8s/cluster
 
-chmod 777 init.sh
+chmod 700 init.sh
+
+sleep 2m
 
 ./init.sh
 

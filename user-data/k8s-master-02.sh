@@ -31,5 +31,7 @@ done
 
 echo "$MASTER_JOIN_CMD --v=5" >/home/ubuntu/join.sh
 chmod 700 /home/ubuntu/join.sh
+chown ubuntu:ubuntu /ho,e/ubuntu/join.sh
 
+su - ubuntu
 ./home/ubuntu/join.sh

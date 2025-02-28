@@ -38,31 +38,3 @@ aws ssm put-parameter --name "/k8s/join/master" --value "$MASTER_JOIN_CMD" --typ
 aws ssm put-parameter --name "/k8s/join/worker" --value "$WORKER_JOIN_CMD" --type "SecureString" --overwrite
 
 echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >>/.bashrc
-source /.bashrc
-
-echo "Waiting for at least 3 ready nodes..."
-
-while true; do
-  # Count nodes in 'Ready' state
-  READY_NODES=$(kubectl get nodes --no-headers | grep -c "Ready")
-
-  if [[ $READY_NODES -ge 3 ]]; then
-    echo "Cluster has $READY_NODES ready nodes. Continuing..."
-    break
-  fi
-
-  echo "Current ready nodes: $READY_NODES. Retrying in 5 seconds..."
-  sleep 5
-done
-
-cd /home/ubuntu/superfast-delivery-api-infra/k8s/cluster/setup
-
-chmod 700 install.sh
-
-./install.sh
-
-cd /home/ubuntu/superfast-delivery-api-infra/k8s/cluster/apps
-
-chmod 700 install.sh
-
-./install.sh

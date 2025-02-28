@@ -31,5 +31,4 @@ done
 
 echo "$WORKER_JOIN_CMD" >/home/ubuntu/join.sh
 chmod 700 /home/ubuntu/join.sh
-
-./home/ubuntu/join.sh
+chown ubuntu:ubuntu /home/ubuntu/join.sh

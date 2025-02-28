@@ -662,6 +662,30 @@ k8sWorkerNode01.privateIp.apply((privateIp) =>
   console.log("K8s Worker Node 01 Private Ip: ", privateIp),
 );
 
+const k8sWorkerNode02 = new aws.ec2.Instance("k8s-worker-02", {
+  ami: k8sNodeAMI,
+  instanceType: aws.ec2.InstanceType.T3_Medium,
+  vpcSecurityGroupIds: [k8sWorkerNodeSg.id],
+  subnetId: privateSubnet02.id,
+  keyName: k8sSSHKeyPair.keyName,
+  iamInstanceProfile: k8sWorkerNodeInstanceProfile,
+  userData: k8sWorkerNodeUserData,
+  rootBlockDevice: {
+    volumeSize: 32,
+    volumeType: "gp3",
+    deleteOnTermination: true,
+  },
+  tags: {
+    Name: "k8s-worker-02",
+    KubernetesCluster: clusterName,
+    [`kubernetes.io/cluster/${clusterName}`]: "owned",
+  },
+});
+
+k8sWorkerNode02.privateIp.apply((privateIp) =>
+  console.log("K8s Worker Node 02 Private Ip: ", privateIp),
+);
+
 const k8sMasterTg = new aws.lb.TargetGroup("k8s-master-tg", {
   name: "k8s-master-tg",
   port: 6443,

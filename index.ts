@@ -107,6 +107,7 @@ const privateSubnet01 = new aws.ec2.Subnet("private-subnet-01", {
   availabilityZone: az1,
   tags: {
     Name: "private-subnet-01",
+    "karpenter.sh/discovery": clusterName,
     [`kubernetes.io/cluster/${clusterName}`]: "shared",
   },
 });
@@ -117,6 +118,7 @@ const privateSubnet02 = new aws.ec2.Subnet("private-subnet-02", {
   availabilityZone: az2,
   tags: {
     Name: "private-subnet-02",
+    "karpenter.sh/discovery": clusterName,
     [`kubernetes.io/cluster/${clusterName}`]: "shared",
   },
 });
@@ -352,6 +354,7 @@ const k8sWorkerNodeSg = new aws.ec2.SecurityGroup("k8s-worker-node-sg", {
   vpcId: vpc.id,
   tags: {
     Name: "k8s-worker-nodes-sg",
+    "karpenter.sh/discovery": clusterName,
     [`kubernetes.io/cluster/${clusterName}`]: "owned",
   },
 });

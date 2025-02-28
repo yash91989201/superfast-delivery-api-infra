@@ -6,6 +6,7 @@
       "Action": [
         "autoscaling:*",
         "ec2:DescribeInstances",
+        "ec2:DescribeImages",
         "ec2:DescribeRegions",
         "ec2:DescribeRouteTables",
         "ec2:DescribeSecurityGroups",

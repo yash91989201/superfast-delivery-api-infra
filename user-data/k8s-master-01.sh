@@ -48,6 +48,7 @@ while true; do
 
   if [[ $READY_NODES -ge 3 ]]; then
     echo "Cluster has $READY_NODES ready nodes. Continuing..."
+    break
   fi
 
   echo "Current ready nodes: $READY_NODES. Retrying in 5 seconds..."

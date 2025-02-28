@@ -29,7 +29,7 @@ while [[ -z "$MASTER_JOIN_CMD" ]]; do
   fi
 done
 
-echo "$MASTER_JOIN_CMD" >/home/ubuntu/join.sh
+echo "$MASTER_JOIN_CMD --v=5" >/home/ubuntu/join.sh
 chmod 700 /home/ubuntu/join.sh
 
 ./home/ubuntu/join.sh

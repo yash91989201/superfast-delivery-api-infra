@@ -29,6 +29,7 @@ while [[ -z "$MASTER_JOIN_CMD" ]]; do
   fi
 done
 
+echo "#!/bin/bash" >/home/ubuntu/join.sh
 echo "$MASTER_JOIN_CMD" >/home/ubuntu/join.sh
 chmod 700 /home/ubuntu/join.sh
 chown ubuntu:ubuntu /home/ubuntu/join.sh

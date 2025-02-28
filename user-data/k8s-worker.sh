@@ -17,21 +17,3 @@ echo "KUBELET_EXTRA_ARGS='--cloud-provider=external --node-ip=$NODE_IP'" >/etc/d
 # Restart kubelet to apply changes
 sudo systemctl daemon-reload
 sudo systemctl restart kubelet
-
-WORKER_JOIN_CMD=""
-
-while [[ -z "$WORKER_JOIN_CMD" ]]; do
-  WORKER_JOIN_CMD=$(aws ssm get-parameter --name "/k8s/join/worker" --with-decryption --query "Parameter.Value" --output text)
-
-  if [[ -z "$WORKER_JOIN_CMD" ]]; then
-    echo "Waiting for worker join command..."
-    sleep 5
-  fi
-done
-
-echo "#!/bin/bash" >/home/ubuntu/join.sh
-echo "$WORKER_JOIN_CMD" >/home/ubuntu/join.sh
-chmod 700 /home/ubuntu/join.sh
-chown ubuntu:ubuntu /home/ubuntu/join.sh
-
-./home/ubuntu/join.sh

@@ -24,17 +24,3 @@ chmod 700 get_helm.sh
 
 git clone https://github.com/yash91989201/superfast-delivery-api-infra /home/ubuntu/superfast-delivery-api-infra
 chown -R ubuntu:ubuntu /home/ubuntu/superfast-delivery-api-infra
-
-cd /home/ubuntu/superfast-delivery-api-infra/k8s/cluster
-
-chmod 700 init.sh
-
-./init.sh
-
-MASTER_JOIN_CMD=$(cat "/home/ubuntu/master-join-cmd")
-WORKER_JOIN_CMD=$(cat "/home/ubuntu/worker-join-cmd")
-
-aws ssm put-parameter --name "/k8s/join/master" --value "$MASTER_JOIN_CMD" --type "SecureString" --overwrite
-aws ssm put-parameter --name "/k8s/join/worker" --value "$WORKER_JOIN_CMD" --type "SecureString" --overwrite
-
-echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >>/.bashrc

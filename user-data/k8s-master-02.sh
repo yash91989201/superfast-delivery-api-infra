@@ -29,6 +29,7 @@ while [[ -z "$MASTER_JOIN_CMD" ]]; do
   fi
 done
 
-sudo -u ubuntu -i
+echo "$MASTER_JOIN_CMD" >/home/ubuntu/join.sh
+chmod 700 /home/ubuntu/join.sh
 
-bash -c "$MASTER_JOIN_CMD" | tee /tmp/join_output.log
+./home/ubuntu/join.sh
